@@ -11,7 +11,7 @@ export const InteractivePreview: React.FC = () => {
         <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-3.5 sm:px-4 py-2.5 text-xs">
           <div className="flex items-center gap-2.5">
             <img
-              src="/logo.svg"
+              src={`${import.meta.env.BASE_URL}logo.svg`}
               alt="BUGCORE"
               className="h-5 w-5 object-contain"
             />
@@ -38,7 +38,7 @@ export const InteractivePreview: React.FC = () => {
           onClick={() => setIsModalOpen(true)}
         >
           <img
-            src="/screenshot.PNG"
+            src={`${import.meta.env.BASE_URL}screenshot.png`}
             alt="BUGCORE Defect Tracker Screenshot"
             className="w-full h-auto max-h-[580px] object-contain block transition-transform duration-300 group-hover:scale-[1.01]"
             loading="eager"
@@ -64,7 +64,7 @@ export const InteractivePreview: React.FC = () => {
           >
             <div className="flex items-center justify-between border-b border-gray-200 pb-2.5 mb-2 px-1 text-xs font-mono text-gray-700 shrink-0">
               <div className="flex items-center gap-2.5">
-                <img src="/logo.svg" alt="BUGCORE" className="h-6 w-6 object-contain" />
+                <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="BUGCORE" className="h-6 w-6 object-contain" />
                 <span className="font-extrabold text-sm text-gray-950">BUGCORE UI Screenshot</span>
               </div>
               <button
@@ -76,7 +76,7 @@ export const InteractivePreview: React.FC = () => {
             </div>
             <div className="overflow-auto max-h-[82vh] overscroll-contain flex justify-center">
               <img
-                src="/screenshot.PNG"
+                src={`${import.meta.env.BASE_URL}screenshot.png`}
                 alt="BUGCORE Defect Tracker Full Resolution"
                 className="w-full h-auto max-w-full object-contain block"
               />

@@ -21,7 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-2 sm:gap-3 text-gray-950 font-bold font-mono text-base sm:text-xl select-none"
           >
             <img
-              src="/logo.svg"
+              src={`${import.meta.env.BASE_URL}logo.svg`}
               alt="BUGCORE logo"
               className="h-7 w-7 sm:h-10 sm:w-10 object-contain drop-shadow-xs shrink-0"
             />

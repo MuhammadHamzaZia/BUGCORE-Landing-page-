@@ -16,7 +16,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Left statement with bigger logo */}
           <div className="flex items-center gap-2.5 text-gray-800 flex-wrap justify-center sm:justify-start font-medium">
             <img
-              src="public/logo.svg"
+              src={`${import.meta.env.BASE_URL}logo.svg`}
               alt="BUGCORE"
               className="h-6 w-6 object-contain inline-block shrink-0 drop-shadow-2xs"
             />

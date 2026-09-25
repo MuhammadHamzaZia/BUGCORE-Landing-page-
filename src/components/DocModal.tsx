@@ -41,7 +41,7 @@ export const DocModal: React.FC<DocModalProps> = ({ isOpen, onClose }) => {
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 bg-gray-50">
           <div className="flex items-center gap-2 sm:gap-2.5">
-            <img src="/logo.svg" alt="BUGCORE" className="w-5 h-5 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="BUGCORE" className="w-5 h-5 object-contain" />
             <h3 className="font-mono text-sm sm:text-base font-bold text-gray-900">
               BUGCORE DOCUMENTATION
             </h3>

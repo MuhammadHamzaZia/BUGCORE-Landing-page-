@@ -13,7 +13,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const handleDownloadZip = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Normal anchor download works, but we also ensure programmatic trigger
     const link = document.createElement('a');
-    link.href = '/BugCore.zip';
+    link.href = `${import.meta.env.BASE_URL}BugCore.zip`;
     link.setAttribute('download', 'BugCore.zip');
     document.body.appendChild(link);
     link.click();
@@ -52,7 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               {/* 2nd White Button: Download BugCore.zip from public folder */}
               <a
-                href="/BugCore.zip"
+                href={`${import.meta.env.BASE_URL}BugCore.zip`}
                 download="BugCore.zip"
                 onClick={handleDownloadZip}
                 className="bg-white hover:bg-gray-50 text-gray-950 font-semibold text-sm px-6 py-3 rounded-xs inline-flex items-center justify-center gap-2 border border-gray-300 transition-colors cursor-pointer min-h-[44px] select-none"
