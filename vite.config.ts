@@ -5,6 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    base: './', // <-- THIS LINE FIXES THE BLANK SCREEN ON GITHUB PAGES
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
