@@ -1,0 +1,74 @@
+@model BugCore.Web.ViewModels.ManageUser.CreateUserViewModel
+@using BugCore.Core.Enums
+
+@{
+    ViewData["Title"] = "Create User - BugCoreBT";
+}
+
+<div class="container py-4 max-w-2xl">
+    <div class="mb-4">
+        <a asp-action="Index" class="text-emerald-400 text-decoration-none small">
+            <i class="bi bi-arrow-left me-1"></i> Back to User List
+        </a>
+        <h2 class="fw-bold mt-2"><i class="bi bi-person-plus me-2"></i>Create New User Account</h2>
+    </div>
+
+    <div class="card bg-slate-900 border-slate-800 shadow">
+        <div class="card-body p-4">
+            <form method="post" asp-action="Create">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="UserName" class="form-label fw-semibold text-slate-300">Username *</label>
+                    <input asp-for="UserName" class="form-control bg-slate-800 border-slate-700 text-slate-100" placeholder="e.g. jdoe" required />
+                    <span asp-validation-for="UserName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="RealName" class="form-label fw-semibold text-slate-300">Real Name</label>
+                    <input asp-for="RealName" class="form-control bg-slate-800 border-slate-700 text-slate-100" placeholder="e.g. John Doe" />
+                    <span asp-validation-for="RealName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label fw-semibold text-slate-300">Email Address</label>
+                    <input asp-for="Email" type="email" class="form-control bg-slate-800 border-slate-700 text-slate-100" placeholder="john.doe@example.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AccessLevel" class="form-label fw-semibold text-slate-300">Global Access Level *</label>
+                    <select asp-for="AccessLevel" class="form-select bg-slate-800 border-slate-700 text-slate-100" asp-items="Html.GetEnumSelectList<AccessLevel>()"></select>
+                    <span asp-validation-for="AccessLevel" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label fw-semibold text-slate-300">Password *</label>
+                    <input asp-for="Password" type="password" class="form-control bg-slate-800 border-slate-700 text-slate-100" placeholder="Minimum 4 characters" required />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <div class="form-check form-switch">
+                            <input asp-for="Enabled" class="form-check-input" type="checkbox" id="flexSwitchEnabled">
+                            <label class="form-check-label text-slate-300" for="flexSwitchEnabled">Enabled Account</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check form-switch">
+                            <input asp-for="Protected" class="form-check-input" type="checkbox" id="flexSwitchProtected">
+                            <label class="form-check-label text-slate-300" for="flexSwitchProtected">Protected Account</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary text-slate-300 px-4">Cancel</a>
+                    <button type="submit" class="btn btn-success text-white fw-bold px-4 shadow"><i class="bi bi-person-plus-fill me-1"></i> Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

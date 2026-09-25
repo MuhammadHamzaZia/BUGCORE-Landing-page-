@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Tag Details";
+    var tagId = ViewBag.TagId ?? 0;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="widget-box widget-color-blue2">
+            <div class="widget-header widget-header-small">
+                <h4 class="widget-title lighter">
+                    <i class="ace-icon fa fa-tag"></i>
+                    Tag Details (#@tagId)
+                </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main no-padding">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <td class="category" style="width: 20%;">Tag ID</td>
+                                <td>@tagId</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Tag Name</td>
+                                <td><span class="label label-info">Sample Tag</span></td>
+                            </tr>
+                            <tr>
+                                <td class="category">Description</td>
+                                <td>Tag categorization for issue taxonomy</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="widget-toolbox padding-8 clearfix">
+                        <form asp-controller="Tag" asp-action="Delete" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="tagId" value="@tagId" />
+                            <button type="submit" class="btn btn-danger btn-xs">
+                                <i class="fa fa-trash"></i> Delete Tag
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

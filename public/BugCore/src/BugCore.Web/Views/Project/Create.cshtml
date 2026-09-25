@@ -1,0 +1,128 @@
+@model BugCore.Web.ViewModels.Projects.ProjectCreateViewModel
+@using BugCore.Core.Enums
+@{
+    ViewData["Title"] = "Add Project";
+}
+
+<div class="container-fluid py-2" style="max-width: 900px;">
+    <!-- Breadcrumb / Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-folder-plus me-2 text-primary"></i>
+                @(Model.ParentProject != null ? $"Add Subproject to '{Model.ParentProject.Name}'" : "Add Project")
+            </h4>
+            <span class="text-muted small">Enter project details and permissions</span>
+        </div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Projects
+        </a>
+    </div>
+
+    @if (Model.ParentProject != null)
+    {
+        <div class="alert alert-info py-2 small d-flex align-items-center mb-3">
+            <i class="bi bi-diagram-2-fill fs-5 me-2"></i>
+            <div>
+                This project will be automatically attached as a child subproject under <strong>@Model.ParentProject.Name</strong>.
+            </div>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h6 class="mb-0 fw-bold text-dark">
+                <i class="bi bi-sliders text-primary me-2"></i> Project Properties
+            </h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ParentProjectId" />
+
+                <div asp-validation-summary="All" class="alert alert-danger py-2 small" role="alert"></div>
+
+                <!-- Project Name -->
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Name" class="col-sm-3 col-form-label fw-semibold text-secondary">
+                        Project Name <span class="text-danger">*</span>
+                    </label>
+                    <div class="col-sm-9">
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Core Billing Engine" required maxlength="128" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Status" class="col-sm-3 col-form-label fw-semibold text-secondary">Status</label>
+                    <div class="col-sm-9">
+                        <select asp-for="Status" class="form-select">
+                            <option value="10">development</option>
+                            <option value="30">release</option>
+                            <option value="50">stable</option>
+                            <option value="70">obsolete</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Enabled -->
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="Enabled" class="col-sm-3 col-form-label fw-semibold text-secondary">Enabled</label>
+                    <div class="col-sm-9">
+                        <div class="form-check form-switch">
+                            <input asp-for="Enabled" class="form-check-input" type="checkbox" role="switch" checked />
+                            <label class="form-check-label text-muted small" asp-for="Enabled">
+                                Active and selectable for tracking issues
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inherit Global Categories -->
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="InheritCategories" class="col-sm-3 col-form-label fw-semibold text-secondary">
+                        Inherit Categories
+                    </label>
+                    <div class="col-sm-9">
+                        <div class="form-check form-switch">
+                            <input asp-for="InheritCategories" class="form-check-input" type="checkbox" role="switch" checked />
+                            <label class="form-check-label text-muted small" asp-for="InheritCategories">
+                                Automatically inherit global categories
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Status -->
+                <div class="row mb-3 align-items-center">
+                    <label asp-for="ViewState" class="col-sm-3 col-form-label fw-semibold text-secondary">View Status</label>
+                    <div class="col-sm-9">
+                        <select asp-for="ViewState" class="form-select">
+                            <option value="@ProjectViewState.Public">public (accessible to all authenticated users with sufficient global access)</option>
+                            <option value="@ProjectViewState.Private">private (accessible only to explicitly assigned users and administrators)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="row mb-4">
+                    <label asp-for="Description" class="col-sm-3 col-form-label fw-semibold text-secondary">Description</label>
+                    <div class="col-sm-9">
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Brief overview of this project's purpose and scope"></textarea>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-check-lg me-1"></i> Add Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,205 @@
+@model BugCore.Web.ViewModels.Issues.EditIssueViewModel
+@using BugCore.Core.Enums
+@{
+    ViewData["Title"] = $"Edit Issue #{Model.Id:D7}";
+}
+
+<div class="container-fluid py-2">
+    <!-- Breadcrumb / Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Back to Details">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <h4 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-pencil-square text-primary me-2"></i>Edit Issue #@Model.Id.ToString("D7")
+                </h4>
+                <span class="badge bg-secondary">@Model.ProjectName</span>
+            </div>
+            <span class="text-muted small ms-4 ps-2">Updating issue parameters, status, and descriptive notes</span>
+        </div>
+        <div>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-x me-1"></i> Cancel
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show small py-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="Edit" method="post" class="card shadow-sm border-0 mb-4">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ProjectId" />
+
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold text-dark">
+                <i class="bi bi-sliders text-primary me-2"></i> Issue Attributes & Description
+            </h6>
+            <span class="text-danger small">* Required fields</span>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row g-3 mb-3">
+                <!-- Category -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Category</label>
+                    <select asp-for="CategoryId" class="form-select form-select-sm">
+                        <option value="">[None]</option>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <option value="@cat.Id" selected="@(Model.CategoryId == cat.Id)">@cat.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Reproducibility -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Reproducibility</label>
+                    <select asp-for="Reproducibility" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<ReproducibilityType>()"></select>
+                </div>
+
+                <!-- Severity -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Severity</label>
+                    <select asp-for="Severity" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<IssueSeverity>()"></select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <!-- Priority -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Priority</label>
+                    <select asp-for="Priority" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<IssuePriority>()"></select>
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Status</label>
+                    <select asp-for="Status" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<IssueStatus>()"></select>
+                </div>
+
+                <!-- Resolution -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Resolution</label>
+                    <select asp-for="Resolution" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<ResolutionType>()"></select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <!-- Assigned To -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Assigned To (Handler)</label>
+                    <select asp-for="HandlerId" class="form-select form-select-sm">
+                        <option value="">[Unassigned]</option>
+                        @foreach (var user in Model.Users)
+                        {
+                            <option value="@user.Id" selected="@(Model.HandlerId == user.Id)">
+                                @(string.IsNullOrEmpty(user.RealName) ? user.UserName : $"{user.RealName} ({user.UserName})")
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Target Version -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Target Version</label>
+                    <select asp-for="TargetVersion" class="form-select form-select-sm">
+                        <option value="">[None]</option>
+                        @foreach (var ver in Model.Versions)
+                        {
+                            <option value="@ver.Version" selected="@(Model.TargetVersion == ver.Version)">@ver.Version</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Fixed In Version -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-secondary small">Fixed in Version</label>
+                    <select asp-for="FixedInVersion" class="form-select form-select-sm">
+                        <option value="">[None]</option>
+                        @foreach (var ver in Model.Versions)
+                        {
+                            <option value="@ver.Version" selected="@(Model.FixedInVersion == ver.Version)">@ver.Version</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <!-- Build -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary small">Product Build</label>
+                    <input type="text" asp-for="Build" class="form-control form-control-sm" placeholder="e.g. 2026.09.21" />
+                </div>
+
+                <!-- View State -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary small">View Status</label>
+                    <div class="d-flex gap-4 pt-1">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="ViewState" value="@ProjectViewState.Public" id="viewStatePublic" />
+                            <label class="form-check-label small" for="viewStatePublic">
+                                <i class="bi bi-globe me-1 text-success"></i> Public
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="ViewState" value="@ProjectViewState.Private" id="viewStatePrivate" />
+                            <label class="form-check-label small" for="viewStatePrivate">
+                                <i class="bi bi-lock-fill me-1 text-danger"></i> Private
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <!-- Summary -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-secondary small">
+                    Summary <span class="text-danger">*</span>
+                </label>
+                <input type="text" asp-for="Summary" class="form-control" required maxlength="128" />
+                <span asp-validation-for="Summary" class="text-danger small"></span>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-secondary small">
+                    Description <span class="text-danger">*</span>
+                </label>
+                <textarea asp-for="Description" class="form-control" rows="5" required></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <!-- Steps to Reproduce -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-secondary small">Steps to Reproduce</label>
+                <textarea asp-for="StepsToReproduce" class="form-control" rows="4"></textarea>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-secondary small">Additional Information</label>
+                <textarea asp-for="AdditionalInformation" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light p-3 d-flex justify-content-between">
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                <i class="bi bi-check2 me-1"></i> Update Information
+            </button>
+        </div>
+    </form>
+</div>

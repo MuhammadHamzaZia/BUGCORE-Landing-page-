@@ -1,0 +1,166 @@
+@{
+    ViewData["Title"] = "SMTP Email Gateway";
+    var issues = ViewBag.Issues as IEnumerable<BugCore.Core.Entities.Issue> ?? new List<BugCore.Core.Entities.Issue>();
+    var redactedOutput = TempData["RedactedOutput"] as string;
+}
+
+<div class="container-fluid py-3">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-slate-300">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-envelope-paper-fill text-amber-600 fs-2"></i>
+                <div>
+                    <h3 class="fw-bold mb-0 text-slate-900">SMTP Email Gateway</h3>
+                    <span class="text-slate-600 small fw-medium">Asynchronous non-blocking dispatch, inbound email parsing, granular preference toggles, and data redaction</span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <span class="badge bg-amber-950 text-amber-400 border border-amber-800 px-3 py-2">
+                <i class="bi bi-cpu-fill me-1"></i> Async Background Queue Active
+            </span>
+        </div>
+    </div>
+
+    <!-- REDACTION OUTPUT BANNER -->
+    @if (!string.IsNullOrEmpty(redactedOutput))
+    {
+        <div class="card bg-slate-900 border-amber-800 mb-4 shadow">
+            <div class="card-header bg-amber-950/60 border-amber-800 text-amber-300 py-3 fw-bold">
+                <i class="bi bi-shield-lock-fill me-2"></i> Sanitized / Redacted Email Body Result
+            </div>
+            <div class="card-body p-3 font-monospace text-slate-200 small bg-slate-950">
+                <pre class="mb-0 text-amber-200">@redactedOutput</pre>
+            </div>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- LEFT: Async Dispatcher & Granular Preferences -->
+        <div class="col-lg-6">
+            <!-- ASYNC DISPATCH CARD -->
+            <div class="card bg-slate-900 border-slate-800 shadow mb-4">
+                <div class="card-header bg-slate-850 border-slate-800 py-3">
+                    <h6 class="fw-bold text-white mb-0">
+                        <i class="bi bi-send-x text-amber-400 me-2"></i> Asynchronous Email Dispatch Simulator
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-controller="EmailGateway" asp-action="SimulateEmailDispatch" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label text-slate-300 small fw-bold">Select Defect Issue</label>
+                            <select name="issueId" class="form-select bg-slate-950 border-slate-800 text-white" required>
+                                @foreach (var issue in issues)
+                                {
+                                    <option value="@issue.Id">#@issue.Id - @issue.Summary (@issue.Severity)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="p-3 bg-slate-950 rounded border border-slate-800 mb-3">
+                            <div class="fw-bold text-slate-300 small mb-2">Granular Preference Thresholds (Notification Fatigue Protection):</div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="emailOnAssignedOnly" value="true" id="prefAssigned" checked />
+                                <label class="form-check-label text-slate-300 small" for="prefAssigned">
+                                    Only email me for issues explicitly assigned to my user account
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="minimumCriticalSeverityOnly" value="true" id="prefCritical" />
+                                <label class="form-check-label text-slate-300 small" for="prefCritical">
+                                    Minimum Severity Threshold: Major / Crash / Blocked Only
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="redactStackTraces" value="true" id="prefRedact" checked />
+                                <label class="form-check-label text-slate-300 small" for="prefRedact">
+                                    Redact sensitive stack traces, file paths & API keys before sending
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-amber text-dark fw-bold shadow-sm">
+                            <i class="bi bi-envelope-plus me-1"></i> Queue Non-Blocking Email Dispatch
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SENSITIVE DATA REDACTION TESTER -->
+            <div class="card bg-slate-900 border-slate-800 shadow">
+                <div class="card-header bg-slate-850 border-slate-800 py-3">
+                    <h6 class="fw-bold text-white mb-0">
+                        <i class="bi bi-eye-slash text-cyan-400 me-2"></i> Sensitive Data Redaction Tester
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-controller="EmailGateway" asp-action="TestDataRedaction" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label text-slate-300 small fw-bold">Raw Description / Stack Trace with Secret</label>
+                            <textarea name="rawText" class="form-control bg-slate-950 border-slate-800 text-slate-200 font-monospace small" rows="4">NullReferenceException: Object reference not set
+at BugCore.Web.Controllers.IssueController.Create() in C:\Users\Dev\src\Controllers\IssueController.cs:line 84
+API_KEY: pat_bugcore_secret_998877665544332211</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-outline-cyan text-cyan-400 fw-bold">
+                            <i class="bi bi-shield-check me-1"></i> Test Data Redaction Filter
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Inbound Email Reply Ingestion -->
+        <div class="col-lg-6">
+            <div class="card bg-slate-900 border-slate-800 shadow h-100">
+                <div class="card-header bg-slate-850 border-slate-800 py-3">
+                    <h6 class="fw-bold text-white mb-0">
+                        <i class="bi bi-reply-all text-emerald-400 me-2"></i> Inbound Email-to-Ticket Reply Parser
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-slate-400 small mb-3">
+                        Simulates ingesting an incoming IMAP email reply. The parser automatically strips out quoted thread headers, signatures, and converts the clean response into an internal bug comment.
+                    </p>
+
+                    <form asp-controller="EmailGateway" asp-action="SimulateInboundReply" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label text-slate-300 small fw-bold">Target Defect Issue</label>
+                            <select name="issueId" class="form-select bg-slate-950 border-slate-800 text-white" required>
+                                @foreach (var issue in issues)
+                                {
+                                    <option value="@issue.Id">#@issue.Id - @issue.Summary</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-slate-300 small fw-bold">Sender Email Address</label>
+                            <input type="email" name="senderEmail" class="form-control bg-slate-950 border-slate-800 text-white" value="developer@bugcore.io" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-slate-300 small fw-bold">Raw Email Body (Including Quoted Headers & Signature)</label>
+                            <textarea name="rawEmailBody" class="form-control bg-slate-950 border-slate-800 text-slate-200 font-monospace small" rows="7" required>I have verified the fix on the staging environment. The database transaction completed cleanly and tests pass.
+
+On 2026-09-24 10:15 AM, BUGCORE Notifications wrote:
+> Issue #101 has been updated to Resolved.
+> Please review the changes.
+--
+John Developer
+Senior Infrastructure Engineer
+BugCore Software Corp</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-emerald text-white fw-bold shadow-sm">
+                            <i class="bi bi-box-arrow-in-down-left me-1"></i> Ingest Inbound Email Reply
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

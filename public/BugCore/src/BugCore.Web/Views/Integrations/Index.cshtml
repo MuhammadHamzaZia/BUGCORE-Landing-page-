@@ -1,0 +1,214 @@
+@{
+    ViewData["Title"] = "Apps & Integrations";
+    var slackSettings = ViewBag.SlackSettings as IDictionary<string, string> ?? new Dictionary<string, string>();
+    var slackStatus = ViewBag.SlackStatus as string ?? "Active";
+    var slackChannelCount = ViewBag.SlackChannelCount ?? 0;
+}
+
+<div class="container-fluid py-3">
+    <!-- Header Banner -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-slate-300">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-grid-3x3-gap-fill text-emerald-600 fs-2"></i>
+                <div>
+                    <h3 class="fw-bold mb-0 text-slate-900">Apps & Integrations</h3>
+                    <span class="text-slate-600 small fw-medium">Connect BUGCORE with enterprise ChatOps, developer tools, API tokens, and webhooks</span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <span class="badge bg-slate-900 text-slate-100 border border-slate-700 px-3 py-2 fs-6 shadow-sm">
+                <i class="bi bi-shield-check text-emerald-400 me-1"></i> Connected Apps Marketplace
+            </span>
+        </div>
+    </div>
+
+    <!-- Integrations Grid -->
+    <div class="row g-4">
+        <!-- 1. SLACK CHATOPS INTEGRATION CARD -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="card bg-slate-900 border-slate-800 shadow h-100 hover-border-emerald transition-all">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="p-3 bg-slate-800 rounded-3 border border-slate-700">
+                                <i class="bi bi-slack text-emerald-400 fs-2"></i>
+                            </div>
+                            <span class="badge bg-emerald-950 text-emerald-400 border border-emerald-800 px-3 py-1">
+                                <i class="bi bi-check-circle-fill me-1"></i> Active
+                            </span>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">Slack ChatOps Integration</h5>
+                        <p class="text-slate-400 small mb-3">
+                            Channel routing, message-to-ticket escalation, thread triage sync, and role-enforced ChatOps action buttons.
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded-3 border border-slate-800 mb-3 small">
+                            <div class="d-flex justify-content-between text-slate-400 mb-1">
+                                <span>Default Channel:</span>
+                                <strong class="text-slate-200 font-monospace">@(slackSettings.TryGetValue("DefaultChannel", out var ch) ? ch : "#bugs-triage")</strong>
+                            </div>
+                            <div class="d-flex justify-content-between text-slate-400">
+                                <span>Available Channels:</span>
+                                <strong class="text-emerald-400">@slackChannelCount mapped channels</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a asp-controller="Slack" asp-action="Index" class="btn btn-emerald text-white fw-bold w-100 shadow-sm">
+                            <i class="bi bi-slack me-1"></i> Open Slack Integration
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. REST API TOKENS CARD -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="card bg-slate-900 border-slate-800 shadow h-100 hover-border-cyan transition-all">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="p-3 bg-slate-800 rounded-3 border border-slate-700">
+                                <i class="bi bi-key-fill text-cyan-400 fs-2"></i>
+                            </div>
+                            <span class="badge bg-cyan-950 text-cyan-400 border border-cyan-800 px-3 py-1">
+                                <i class="bi bi-shield-lock me-1"></i> Active
+                            </span>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">REST API Tokens</h5>
+                        <p class="text-slate-400 small mb-3">
+                            Generate personal API tokens for programmatic REST access, CI/CD pipelines, and automated script triggers.
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded-3 border border-slate-800 mb-3 small">
+                            <div class="d-flex justify-content-between text-slate-400 mb-1">
+                                <span>Authentication:</span>
+                                <strong class="text-slate-200">Bearer Token Header</strong>
+                            </div>
+                            <div class="d-flex justify-content-between text-slate-400">
+                                <span>API Scope:</span>
+                                <strong class="text-cyan-400">Full REST Access</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a asp-controller="ApiToken" asp-action="Index" class="btn btn-cyan text-white fw-bold w-100 shadow-sm">
+                            <i class="bi bi-key me-1"></i> Manage API Tokens
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. MICROSOFT TEAMS -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="card bg-slate-900 border-slate-800 shadow h-100 hover-border-indigo transition-all">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="p-3 bg-slate-800 rounded-3 border border-slate-700">
+                                <i class="bi bi-microsoft-teams text-indigo-400 fs-2"></i>
+                            </div>
+                            <span class="badge bg-indigo-950 text-indigo-400 border border-indigo-800 px-3 py-1">
+                                <i class="bi bi-check-circle-fill me-1"></i> Active
+                            </span>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">Microsoft Teams Connector</h5>
+                        <p class="text-slate-400 small mb-3">
+                            Send rich adaptive cards v1.4, deep-link routing, and rate-limit throttling to Microsoft Teams channels.
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded-3 border border-slate-800 mb-3 small">
+                            <div class="d-flex justify-content-between text-slate-400 mb-1">
+                                <span>Card Schema:</span>
+                                <strong class="text-indigo-400 font-monospace">Adaptive Cards v1.4</strong>
+                            </div>
+                            <div class="d-flex justify-content-between text-slate-400">
+                                <span>Action Type:</span>
+                                <strong class="text-slate-200">Action.OpenUrl Deep Links</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a asp-controller="Teams" asp-action="Index" class="btn btn-indigo text-white fw-bold w-100 shadow-sm">
+                            <i class="bi bi-microsoft-teams me-1"></i> Configure Teams Connector
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. GITHUB / GITLAB LINKER -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="card bg-slate-900 border-slate-800 shadow h-100 hover-border-emerald transition-all">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="p-3 bg-slate-800 rounded-3 border border-slate-700">
+                                <i class="bi bi-github text-white fs-2"></i>
+                            </div>
+                            <span class="badge bg-emerald-950 text-emerald-400 border border-emerald-800 px-3 py-1">
+                                <i class="bi bi-check-circle-fill me-1"></i> Active
+                            </span>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">Git Repository Commit Linker</h5>
+                        <p class="text-slate-400 small mb-3">
+                            HMAC SHA-256 signature verification, syntax parsing (<code class="text-emerald-400">Fixes #104</code>), and branch-to-version mapping.
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded-3 border border-slate-800 mb-3 small">
+                            <div class="d-flex justify-content-between text-slate-400 mb-1">
+                                <span>Security:</span>
+                                <strong class="text-cyan-400 font-monospace">HMAC-SHA256 Signed</strong>
+                            </div>
+                            <div class="d-flex justify-content-between text-slate-400">
+                                <span>Supported:</span>
+                                <strong class="text-slate-200">GitHub / GitLab / Bitbucket</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a asp-controller="GitWebhook" asp-action="Index" class="btn btn-emerald text-white fw-bold w-100 shadow-sm">
+                            <i class="bi bi-git me-1"></i> Manage Git Webhooks
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. EMAIL NOTIFICATION GATEWAY -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="card bg-slate-900 border-slate-800 shadow h-100 hover-border-amber transition-all">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="p-3 bg-slate-800 rounded-3 border border-slate-700">
+                                <i class="bi bi-envelope-paper-fill text-amber-400 fs-2"></i>
+                            </div>
+                            <span class="badge bg-amber-950 text-amber-400 border border-amber-800 px-3 py-1">
+                                <i class="bi bi-check-circle-fill me-1"></i> Active
+                            </span>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">SMTP Email Gateway</h5>
+                        <p class="text-slate-400 small mb-3">
+                            Asynchronous non-blocking dispatch, inbound email reply parsing, data redaction, and preference toggles.
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded-3 border border-slate-800 mb-3 small">
+                            <div class="d-flex justify-content-between text-slate-400 mb-1">
+                                <span>Dispatch Mode:</span>
+                                <strong class="text-amber-400 font-monospace">Non-blocking Queue</strong>
+                            </div>
+                            <div class="d-flex justify-content-between text-slate-400">
+                                <span>Inbound Parser:</span>
+                                <strong class="text-slate-200">IMAP Reply Ingestion</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a asp-controller="EmailGateway" asp-action="Index" class="btn btn-amber text-white fw-bold w-100 shadow-sm">
+                            <i class="bi bi-envelope-gear me-1"></i> Configure Email Gateway
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

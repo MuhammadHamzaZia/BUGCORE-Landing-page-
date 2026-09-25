@@ -1,0 +1,452 @@
+@using BugCore.Core.Entities
+@using BugCore.Core.Enums
+@{
+    var activeProjectId = ViewData["ActiveProjectId"] as int?;
+    var accessibleProjects = ViewData["AccessibleProjects"] as IEnumerable<Project> ?? Enumerable.Empty<Project>();
+    var activeProject = ViewData["ActiveProject"] as Project;
+    var userAccessLevel = ViewData["UserAccessLevel"] as AccessLevel? ?? AccessLevel.Viewer;
+    var currentUser = ViewData["CurrentUser"] as ApplicationUser;
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    string GetBadgeClass(AccessLevel level) => level switch
+    {
+        AccessLevel.Administrator => "bg-danger text-white",
+        AccessLevel.Manager => "bg-primary text-white",
+        AccessLevel.Developer => "bg-info text-dark",
+        AccessLevel.Updater => "bg-warning text-dark",
+        AccessLevel.Reporter => "bg-success text-white",
+        _ => "bg-secondary text-white"
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BUGCORE</title>
+    <!-- Bootstrap 5 CSS & Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <style>
+        :root {
+            --bugcore-topbar-bg: #1e293b;
+            --bugcore-sidebar-bg: #0f172a;
+            --bugcore-sidebar-hover: #1e293b;
+            --bugcore-sidebar-active: #0f766e;
+            --bugcore-brand-teal: #14b8a6;
+        }
+        body {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+        }
+        .topbar-bugcore {
+            background-color: var(--bugcore-topbar-bg);
+            border-bottom: 1px solid #334155;
+            height: 56px;
+            z-index: 1030;
+        }
+        .sidebar-bugcore {
+            background-color: var(--bugcore-sidebar-bg);
+            width: 240px;
+            min-height: calc(100vh - 56px);
+            border-right: 1px solid #1e293b;
+            transition: all 0.2s ease-in-out;
+        }
+        .sidebar-bugcore .nav-link {
+            color: #94a3b8;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.925rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: color 0.15s ease, background-color 0.15s ease;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-bugcore .nav-link:hover {
+            color: #f8fafc;
+            background-color: var(--bugcore-sidebar-hover);
+        }
+        .sidebar-bugcore .nav-link.active {
+            color: #ffffff;
+            background-color: #1e293b;
+            border-left-color: var(--bugcore-brand-teal);
+            font-weight: 600;
+        }
+        .sidebar-bugcore .nav-link.report-issue-btn {
+            background-color: #047857;
+            color: #ffffff;
+            border-radius: 6px;
+            margin: 0.5rem 1rem;
+            padding: 0.5rem 1rem;
+            border-left: none;
+            justify-content: center;
+            font-weight: 500;
+        }
+        .sidebar-bugcore .nav-link.report-issue-btn:hover {
+            background-color: #059669;
+        }
+        .content-area {
+            flex: 1;
+            padding: 1.5rem;
+            min-width: 0;
+        }
+        .user-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 0.2rem 0.45rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 700;
+            line-height: 1;
+            width: fit-content;
+            margin-top: 2px;
+        }
+        .project-select-header {
+            max-width: 320px;
+        }
+        /* Custom Slate, Emerald, Cyan, Indigo, Amber Palette Utilities */
+        .bg-slate-950 { background-color: #020617 !important; color: #f8fafc; }
+        .bg-slate-900 { background-color: #0f172a !important; color: #f8fafc; }
+        .bg-slate-850 { background-color: #162032 !important; color: #f8fafc; }
+        .bg-slate-800 { background-color: #1e293b !important; color: #f8fafc; }
+        .border-slate-800 { border-color: #1e293b !important; }
+        .border-slate-700 { border-color: #334155 !important; }
+        .text-slate-100 { color: #f8fafc !important; }
+        .text-slate-200 { color: #e2e8f0 !important; }
+        .text-slate-300 { color: #cbd5e1 !important; }
+        .text-slate-400 { color: #94a3b8 !important; }
+        .text-emerald-400 { color: #34d399 !important; }
+        .text-cyan-400 { color: #38bdf8 !important; }
+        .text-indigo-400 { color: #818cf8 !important; }
+        .text-amber-400 { color: #fbbf24 !important; }
+        .max-w-2xl { max-width: 42rem; margin-left: auto; margin-right: auto; }
+
+        /* Solid High-Contrast Buttons */
+        .btn-emerald {
+            background-color: #10b981 !important;
+            color: #ffffff !important;
+            border: 1px solid #059669 !important;
+            font-weight: 600;
+        }
+        .btn-emerald:hover, .btn-emerald:focus {
+            background-color: #059669 !important;
+            color: #ffffff !important;
+            border-color: #047857 !important;
+        }
+        .btn-cyan {
+            background-color: #0284c7 !important;
+            color: #ffffff !important;
+            border: 1px solid #0369a1 !important;
+            font-weight: 600;
+        }
+        .btn-cyan:hover, .btn-cyan:focus {
+            background-color: #0369a1 !important;
+            color: #ffffff !important;
+        }
+        .btn-indigo {
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+            border: 1px solid #4338ca !important;
+            font-weight: 600;
+        }
+        .btn-indigo:hover, .btn-indigo:focus {
+            background-color: #4338ca !important;
+            color: #ffffff !important;
+        }
+        .btn-amber {
+            background-color: #d97706 !important;
+            color: #ffffff !important;
+            border: 1px solid #b45309 !important;
+            font-weight: 600;
+        }
+        .btn-amber:hover, .btn-amber:focus {
+            background-color: #b45309 !important;
+            color: #ffffff !important;
+        }
+        .btn-slate-800 {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border: 1px solid #475569 !important;
+            font-weight: 600;
+        }
+        .btn-slate-800:hover, .btn-slate-800:focus {
+            background-color: #334155 !important;
+            color: #ffffff !important;
+        }
+
+        /* Outline High-Contrast Buttons for Dark Cards */
+        .btn-outline-cyan {
+            color: #38bdf8 !important;
+            border: 1px solid #38bdf8 !important;
+            background-color: rgba(56, 189, 248, 0.12) !important;
+            font-weight: 600;
+        }
+        .btn-outline-cyan:hover {
+            background-color: #0284c7 !important;
+            color: #ffffff !important;
+        }
+        .btn-outline-indigo {
+            color: #818cf8 !important;
+            border: 1px solid #818cf8 !important;
+            background-color: rgba(129, 140, 248, 0.12) !important;
+            font-weight: 600;
+        }
+        .btn-outline-indigo:hover {
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+        }
+        .btn-outline-emerald {
+            color: #34d399 !important;
+            border: 1px solid #34d399 !important;
+            background-color: rgba(52, 211, 153, 0.12) !important;
+            font-weight: 600;
+        }
+        .btn-outline-emerald:hover {
+            background-color: #10b981 !important;
+            color: #ffffff !important;
+        }
+        .btn-outline-amber {
+            color: #fbbf24 !important;
+            border: 1px solid #fbbf24 !important;
+            background-color: rgba(251, 191, 36, 0.12) !important;
+            font-weight: 600;
+        }
+        .btn-outline-amber:hover {
+            background-color: #d97706 !important;
+            color: #ffffff !important;
+        }
+        @@media (max-width: 768px) {
+            .sidebar-bugcore {
+                position: fixed;
+                top: 56px;
+                left: -240px;
+                bottom: 0;
+                z-index: 1020;
+            }
+            .sidebar-bugcore.show {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="d-flex flex-column">
+    <!-- Top Header Bar -->
+    <header class="topbar-bugcore sticky-top d-flex align-items-center px-3 justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <!-- Sidebar toggle button for mobile/compact -->
+            <button class="btn btn-sm btn-outline-secondary border-0 text-white-50 d-md-none" id="sidebarToggle" type="button">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+            
+            <!-- Brand -->
+            <a class="navbar-brand fw-bold text-white d-flex align-items-center gap-2 text-decoration-none" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-bug-fill text-warning fs-5"></i>
+                <span class="d-none d-sm-inline">BUGCORE</span>
+            </a>
+        </div>
+
+        <!-- Center: Project Selector Header -->
+        <div class="d-flex align-items-center mx-2 flex-grow-1 justify-content-center justify-content-md-start ps-md-4">
+            <form asp-controller="Project" asp-action="SelectProject" method="post" class="d-flex align-items-center project-select-header w-100">
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-dark border-secondary text-white-50">
+                        <i class="bi bi-folder2-open"></i>
+                    </span>
+                    <select name="projectId" onchange="this.form.submit()" class="form-select bg-dark text-white border-secondary small" title="Select active project filter">
+                        <option value="" selected="@(activeProjectId == null)">[ All Projects ]</option>
+                        @foreach (var proj in accessibleProjects)
+                        {
+                            <option value="@proj.Id" selected="@(activeProjectId == proj.Id)">@proj.Name</option>
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right: User Profile Badge & Actions -->
+        <div class="d-flex align-items-center gap-2">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-dark bg-transparent border-0 text-white dropdown-toggle d-flex align-items-center gap-2 py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="d-inline-flex align-items-center justify-content-center bg-secondary bg-opacity-50 rounded-circle text-white flex-shrink-0" style="width: 32px; height: 32px;">
+                            <i class="bi bi-person-fill fs-6"></i>
+                        </span>
+                        <div class="text-start d-none d-sm-flex flex-column justify-content-center me-1">
+                            <span class="small fw-semibold text-white lh-1">@(currentUser?.RealName ?? User.Identity.Name)</span>
+                            <span class="user-badge @GetBadgeClass(userAccessLevel)">@userAccessLevel</span>
+                        </div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-secondary border-opacity-25 mt-2">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-bold small">@(currentUser?.RealName ?? User.Identity.Name)</div>
+                            <div class="text-muted small">@@@User.Identity.Name</div>
+                            <div class="mt-1"><span class="badge @GetBadgeClass(userAccessLevel)">@userAccessLevel</span></div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item py-2 small" asp-controller="Dashboard" asp-action="Index">
+                                <i class="bi bi-speedometer2 me-2 text-secondary"></i> My View
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item py-2 small" asp-controller="Issue" asp-action="Index">
+                                <i class="bi bi-list-task me-2 text-secondary"></i> View Issues
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item py-2 small" asp-controller="Slack" asp-action="Index">
+                                <i class="bi bi-slack me-2 text-emerald-400"></i> Link Slack Identity
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item py-2 small text-success fw-semibold" asp-controller="Issue" asp-action="Create">
+                                <i class="bi bi-plus-circle me-2"></i> Report Issue
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1" /></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item py-2 small text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-light">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                </a>
+            }
+        </div>
+    </header>
+
+    <!-- Main Layout Container: Sidebar + Content -->
+    <div class="d-flex flex-grow-1">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar-bugcore d-flex flex-column py-3" id="bugcoreSidebar">
+            <!-- Fast Action Button: Report Issue -->
+            <a class="nav-link report-issue-btn mb-3 shadow-sm" asp-controller="Issue" asp-action="Create">
+                <i class="bi bi-pencil-square"></i>
+                <span>Report Issue</span>
+            </a>
+
+            <nav class="nav flex-column flex-grow-1">
+                <a class="nav-link @(currentController == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>My View</span>
+                </a>
+                <a class="nav-link @(currentController == "Issue" && currentAction != "Create" ? "active" : "")" asp-controller="Issue" asp-action="Index">
+                    <i class="bi bi-list-task"></i>
+                    <span>View Issues</span>
+                </a>
+                <a class="nav-link @(currentController == "Project" ? "active" : "")" asp-controller="Project" asp-action="Index">
+                    <i class="bi bi-folder2"></i>
+                    <span>Projects</span>
+                </a>
+                <a class="nav-link @(currentController == "Integrations" || currentController == "Slack" ? "active" : "")" asp-controller="Integrations" asp-action="Index">
+                    <i class="bi bi-grid-3x3-gap text-emerald-400"></i>
+                    <span>Apps & Integrations</span>
+                </a>
+                <a class="nav-link @(currentController == "Slack" ? "active" : "")" asp-controller="Slack" asp-action="Index">
+                    <i class="bi bi-slack text-emerald-400"></i>
+                    <span>Slack ChatOps</span>
+                </a>
+
+                @if (userAccessLevel >= AccessLevel.Manager)
+                {
+                    <div class="px-3 pt-3 pb-1 text-uppercase text-white-50" style="font-size: 0.65rem; letter-spacing: 0.08em; font-weight: 700;">
+                        Management
+                    </div>
+                    <a class="nav-link @(currentController == "Project" && currentAction == "Create" ? "active" : "")" asp-controller="Project" asp-action="Create">
+                        <i class="bi bi-folder-plus"></i>
+                        <span>New Project</span>
+                    </a>
+                    <a class="nav-link @(currentController == "Project" ? "active" : "")" asp-controller="Project" asp-action="Index">
+                        <i class="bi bi-gear-wide-connected"></i>
+                        <span>Manage Projects</span>
+                    </a>
+                    @if (userAccessLevel >= AccessLevel.Administrator)
+                    {
+                        <a class="nav-link @(currentController == "Admin" ? "active" : "")" asp-controller="Admin" asp-action="Index">
+                            <i class="bi bi-shield-lock"></i>
+                            <span>Admin Portal</span>
+                        </a>
+                        <a class="nav-link @(currentController == "ManageUser" && currentAction == "Index" ? "active" : "")" asp-controller="ManageUser" asp-action="Index">
+                            <i class="bi bi-people"></i>
+                            <span>Manage Users</span>
+                        </a>
+                        <a class="nav-link @(currentController == "ManageUser" && currentAction == "Create" ? "active" : "")" asp-controller="ManageUser" asp-action="Create">
+                            <i class="bi bi-person-plus"></i>
+                            <span>Register New User</span>
+                        </a>
+                        <a class="nav-link @(currentController == "CustomField" ? "active" : "")" asp-controller="CustomField" asp-action="Index">
+                            <i class="bi bi-ui-checks"></i>
+                            <span>Custom Fields</span>
+                        </a>
+                    }
+                }
+            </nav>
+        </aside>
+
+        <!-- Page Content -->
+        <main class="content-area d-flex flex-column justify-content-between">
+            <div>
+                <!-- Alert Feedback Component -->
+                <partial name="_Alerts" />
+
+                <!-- Active Project Context Banner (if project selected) -->
+                @if (activeProject != null)
+                {
+                    <div class="alert alert-light border shadow-sm py-2 px-3 mb-3 d-flex align-items-center justify-content-between small">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-funnel-fill text-primary"></i>
+                            <span>Filtering issues for project: <strong class="text-primary">@activeProject.Name</strong></span>
+                            @if (activeProject.ViewState == ProjectViewState.Private)
+                            {
+                                <span class="badge bg-secondary">Private</span>
+                            }
+                        </div>
+                        <form asp-controller="Project" asp-action="SelectProject" method="post" class="m-0">
+                            <input type="hidden" name="projectId" value="" />
+                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                            <button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none text-muted">
+                                <i class="bi bi-x-circle me-1"></i>Clear filter
+                            </button>
+                        </form>
+                    </div>
+                }
+
+                @RenderBody()
+            </div>
+
+            <footer class="text-muted text-center py-3 border-top mt-5 small">
+                BUGCORE &bull; Bug Tracking System
+            </footer>
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toggleBtn = document.getElementById('sidebarToggle');
+            var sidebar = document.getElementById('bugcoreSidebar');
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

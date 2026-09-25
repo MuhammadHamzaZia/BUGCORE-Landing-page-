@@ -1,0 +1,6 @@
+{
+  "name": "BUGCORE — Self-hosted Defect Tracker",
+  "description": "An open-source ASP.NET Core defect tracker with native Slack integrations and granular role-based access control.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

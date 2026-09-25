@@ -1,0 +1,381 @@
+@model BugCore.Web.ViewModels.Dashboard.DashboardViewModel
+@{
+    ViewData["Title"] = "My View";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="fw-bold mb-0">My View (Dashboard)</h4>
+        <small class="text-muted">
+            @(Model.CurrentProject != null ? $"Filtered by project: {Model.CurrentProject.Name}" : "Showing issues across all accessible projects")
+        </small>
+    </div>
+    <div class="d-flex gap-2">
+        <!-- Configure Boxes Button -->
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#configBoxesPanel" aria-expanded="false">
+            <i class="bi bi-gear me-1"></i> Configure Boxes
+        </button>
+        <a asp-controller="Issue" asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Report Issue
+        </a>
+    </div>
+</div>
+
+<!-- Collapsible Box Configuration Panel -->
+<div class="collapse mb-4" id="configBoxesPanel">
+    <div class="card card-body bg-light border-0 shadow-sm">
+        <form asp-action="SaveBoxSettings" method="post" class="row g-3 align-items-center">
+            @Html.AntiForgeryToken()
+            <div class="col-12">
+                <span class="fw-bold small text-secondary me-3"><i class="bi bi-sliders me-1"></i> Visible Query Boxes:</span>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="ShowUnassigned" id="chkUnassigned" value="true" @(Model.Settings.ShowUnassigned ? "checked" : "") />
+                    <label class="form-check-label small" for="chkUnassigned">Unassigned</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="ShowAssignedToMe" id="chkAssigned" value="true" @(Model.Settings.ShowAssignedToMe ? "checked" : "") />
+                    <label class="form-check-label small" for="chkAssigned">Assigned to Me</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="ShowReportedByMe" id="chkReported" value="true" @(Model.Settings.ShowReportedByMe ? "checked" : "") />
+                    <label class="form-check-label small" for="chkReported">Reported by Me</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="ShowResolved" id="chkResolved" value="true" @(Model.Settings.ShowResolved ? "checked" : "") />
+                    <label class="form-check-label small" for="chkResolved">Resolved</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="ShowRecentlyModified" id="chkRecent" value="true" @(Model.Settings.ShowRecentlyModified ? "checked" : "") />
+                    <label class="form-check-label small" for="chkRecent">Recently Modified</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="ShowMonitoredByMe" id="chkMonitored" value="true" @(Model.Settings.ShowMonitoredByMe ? "checked" : "") />
+                    <label class="form-check-label small" for="chkMonitored">Monitored by Me</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="ShowTimeline" id="chkTimeline" value="true" @(Model.Settings.ShowTimeline ? "checked" : "") />
+                    <label class="form-check-label small" for="chkTimeline">Activity Timeline</label>
+                </div>
+            </div>
+            <div class="col-auto ms-auto">
+                <button type="submit" class="btn btn-sm btn-dark px-3">Save Preferences</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Unassigned Issues Box -->
+    @if (Model.Settings.ShowUnassigned)
+    {
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-inbox me-2 text-warning"></i> Unassigned</span>
+                    <a asp-controller="Issue" asp-action="Index" asp-route-handlerId="0" class="badge bg-secondary text-decoration-none">
+                        @Model.Summary.UnassignedIssues.Count() issues
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Summary</th>
+                                <th style="width: 90px;">Priority</th>
+                                <th style="width: 100px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Summary.UnassignedIssues.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">No unassigned issues.</td></tr>
+                            }
+                            @foreach (var issue in Model.Summary.UnassignedIssues)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Issue" asp-action="Details" asp-route-id="@issue.Id" class="fw-bold font-monospace text-decoration-none">@issue.Id.ToString("D7")</a></td>
+                                    <td class="text-truncate" style="max-width: 250px;">
+                                        <span class="text-muted small">[@issue.Project?.Name]</span> @issue.Summary
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border">@issue.Priority</span></td>
+                                    <td><span class="badge bg-danger text-white">@issue.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Assigned to Me Box -->
+    @if (Model.Settings.ShowAssignedToMe)
+    {
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-person-check me-2 text-success"></i> Assigned to Me</span>
+                    <span class="badge bg-primary">@Model.Summary.AssignedToMe.Count()</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Summary</th>
+                                <th style="width: 90px;">Priority</th>
+                                <th style="width: 100px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Summary.AssignedToMe.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">No active assignments.</td></tr>
+                            }
+                            @foreach (var issue in Model.Summary.AssignedToMe)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Issue" asp-action="Details" asp-route-id="@issue.Id" class="fw-bold font-monospace text-decoration-none">@issue.Id.ToString("D7")</a></td>
+                                    <td class="text-truncate" style="max-width: 250px;">
+                                        <span class="text-muted small">[@issue.Project?.Name]</span> @issue.Summary
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border">@issue.Priority</span></td>
+                                    <td><span class="badge bg-info text-dark">@issue.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Reported by Me Box -->
+    @if (Model.Settings.ShowReportedByMe)
+    {
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-pencil-square me-2 text-primary"></i> Reported by Me</span>
+                    <span class="badge bg-secondary">@Model.Summary.ReportedByMe.Count()</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Summary</th>
+                                <th style="width: 110px;">Handler</th>
+                                <th style="width: 100px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Summary.ReportedByMe.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">No reported issues found.</td></tr>
+                            }
+                            @foreach (var issue in Model.Summary.ReportedByMe)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Issue" asp-action="Details" asp-route-id="@issue.Id" class="fw-bold font-monospace text-decoration-none">@issue.Id.ToString("D7")</a></td>
+                                    <td class="text-truncate" style="max-width: 240px;">
+                                        <span class="text-muted small">[@issue.Project?.Name]</span> @issue.Summary
+                                    </td>
+                                    <td>@(issue.Handler?.RealName ?? issue.Handler?.UserName ?? "Unassigned")</td>
+                                    <td><span class="badge bg-secondary">@issue.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Resolved Issues Box -->
+    @if (Model.Settings.ShowResolved)
+    {
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-check2-circle me-2 text-success"></i> Resolved</span>
+                    <span class="badge bg-success">@Model.Summary.ResolvedIssues.Count()</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Summary</th>
+                                <th style="width: 100px;">Resolution</th>
+                                <th style="width: 100px;">Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Summary.ResolvedIssues.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">No resolved issues.</td></tr>
+                            }
+                            @foreach (var issue in Model.Summary.ResolvedIssues)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Issue" asp-action="Details" asp-route-id="@issue.Id" class="fw-bold font-monospace text-decoration-none">@issue.Id.ToString("D7")</a></td>
+                                    <td class="text-truncate" style="max-width: 250px;">
+                                        <span class="text-muted small">[@issue.Project?.Name]</span> @issue.Summary
+                                    </td>
+                                    <td><span class="badge bg-success-subtle text-success border border-success-subtle">@issue.Resolution</span></td>
+                                    <td class="text-muted">@issue.LastUpdated.ToString("yyyy-MM-dd")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Monitored by Me Box -->
+    @if (Model.Settings.ShowMonitoredByMe)
+    {
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-eye me-2 text-info"></i> Monitored by Me</span>
+                    <span class="badge bg-info text-dark">@Model.Summary.MonitoredByMe.Count()</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Summary</th>
+                                <th style="width: 100px;">Status</th>
+                                <th style="width: 100px;">Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Summary.MonitoredByMe.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">You are not monitoring any issues.</td></tr>
+                            }
+                            @foreach (var issue in Model.Summary.MonitoredByMe)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Issue" asp-action="Details" asp-route-id="@issue.Id" class="fw-bold font-monospace text-decoration-none">@issue.Id.ToString("D7")</a></td>
+                                    <td class="text-truncate" style="max-width: 250px;">
+                                        <span class="text-muted small">[@issue.Project?.Name]</span> @issue.Summary
+                                    </td>
+                                    <td><span class="badge bg-primary">@issue.Status</span></td>
+                                    <td class="text-muted">@issue.LastUpdated.ToString("yyyy-MM-dd")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Recently Modified Issues Box -->
+    @if (Model.Settings.ShowRecentlyModified)
+    {
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-clock me-2 text-secondary"></i> Recently Modified</span>
+                    <span class="badge bg-secondary">@Model.Summary.RecentlyModified.Count()</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Summary</th>
+                                <th style="width: 100px;">Status</th>
+                                <th style="width: 100px;">Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Summary.RecentlyModified.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">No issues recorded.</td></tr>
+                            }
+                            @foreach (var issue in Model.Summary.RecentlyModified)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Issue" asp-action="Details" asp-route-id="@issue.Id" class="fw-bold font-monospace text-decoration-none">@issue.Id.ToString("D7")</a></td>
+                                    <td class="text-truncate" style="max-width: 250px;">
+                                        <span class="text-muted small">[@issue.Project?.Name]</span> @issue.Summary
+                                    </td>
+                                    <td><span class="badge bg-secondary">@issue.Status</span></td>
+                                    <td class="text-muted">@issue.LastUpdated.ToString("yyyy-MM-dd")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Recent Audit Activity Timeline (timeline_inc.php) -->
+    @if (Model.Settings.ShowTimeline)
+    {
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom fw-bold d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-activity me-2 text-danger"></i> Recent Activity Timeline</span>
+                    <small class="text-muted">Audit trail across projects</small>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush small">
+                        @if (!Model.Summary.RecentActivity.Any())
+                        {
+                            <li class="list-group-item text-center text-muted py-3">No recent activity logged.</li>
+                        }
+                        @foreach (var act in Model.Summary.RecentActivity)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                                <div>
+                                    <i class="bi bi-dot text-primary fs-5 align-middle"></i>
+                                    <strong class="text-dark">@(act.User?.RealName ?? act.User?.UserName ?? "User")</strong>
+                                    <span class="text-muted">updated issue</span>
+                                    <a asp-controller="Issue" asp-action="Details" asp-route-id="@act.IssueId" class="text-decoration-none fw-bold font-monospace">
+                                        #@act.IssueId.ToString("D7")
+                                    </a>
+                                    @if (act.Issue?.Project != null)
+                                    {
+                                        <span class="text-muted">(@act.Issue.Project.Name)</span>
+                                    }
+                                    — <span class="badge bg-light text-secondary border">@act.FieldName</span>
+                                    @if (!string.IsNullOrWhiteSpace(act.OldValue))
+                                    {
+                                        <span class="text-decoration-line-through text-muted small me-1">@act.OldValue</span>
+                                        <i class="bi bi-arrow-right text-muted small me-1"></i>
+                                    }
+                                    <span class="fw-semibold text-dark">@act.NewValue</span>
+                                </div>
+                                <span class="text-muted small text-nowrap ms-2">@act.DateModified.ToString("g")</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+</div>
