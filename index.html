@@ -3,20 +3,81 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary SEO Meta Tags -->
     <title>BUGCORE — Self-hosted Defect Tracker</title>
+    <meta name="title" content="BUGCORE — Self-hosted Defect Tracker" />
     <meta name="description" content="An open-source ASP.NET Core defect tracker with native Slack integrations and granular role-based access control." />
+    <meta name="keywords" content="bug tracker, defect tracker, issue tracker, self-hosted, ASP.NET Core, open source, PostgreSQL, Slack integration, RBAC, developer tools" />
+    <meta name="author" content="Muhammad Hamza Zia" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://muhammadhamzazia.github.io/BUGCORE-Landing-page-/" />
+
+    <!-- Open Graph / Facebook / LinkedIn / Slack -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://muhammadhamzazia.github.io/BUGCORE-Landing-page-/" />
     <meta property="og:title" content="BUGCORE — Self-hosted Defect Tracker" />
     <meta property="og:description" content="An open-source ASP.NET Core defect tracker with native Slack integrations and granular role-based access control." />
-    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BUGCORE" />
+    <meta property="og:image" content="https://muhammadhamzazia.github.io/BUGCORE-Landing-page-/screenshot.png" />
+    <meta property="og:image:alt" content="BUGCORE Defect Tracker User Interface Screenshot" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="twitter:url" content="https://muhammadhamzazia.github.io/BUGCORE-Landing-page-/" />
+    <meta name="twitter:title" content="BUGCORE — Self-hosted Defect Tracker" />
+    <meta name="twitter:description" content="An open-source ASP.NET Core defect tracker with native Slack integrations and granular role-based access control." />
+    <meta name="twitter:image" content="https://muhammadhamzazia.github.io/BUGCORE-Landing-page-/screenshot.png" />
+    <meta name="twitter:image:alt" content="BUGCORE Defect Tracker User Interface Screenshot" />
+
+    <!-- Icons & Manifest -->
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./logo.svg" />
+    <meta name="theme-color" content="#111827" />
+
+    <!-- Typography Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Schema.org SoftwareApplication JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "BUGCORE",
+      "operatingSystem": "Linux, Windows, macOS, Docker",
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "Issue & Defect Tracking",
+      "description": "An open-source ASP.NET Core defect tracker with native Slack integrations and granular role-based access control.",
+      "url": "https://muhammadhamzazia.github.io/BUGCORE-Landing-page-/",
+      "image": "https://muhammadhamzazia.github.io/BUGCORE-Landing-page-/screenshot.png",
+      "license": "https://opensource.org/licenses/MIT",
+      "author": {
+        "@type": "Person",
+        "name": "Muhammad Hamza Zia",
+        "url": "https://github.com/MuhammadHamzaZia"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Self-hosted ASP.NET Core & PostgreSQL backend",
+        "Native Slack bi-directional bot integration",
+        "Granular Role-Based Access Control (RBAC)",
+        "Audit logging and complete issue history",
+        "RESTful API & Git Webhooks support",
+        "Custom fields and sub-issue hierarchies"
+      ]
+    }
+    </script>
   </head>
   <body class="min-h-full bg-white font-sans text-gray-900 selection:bg-gray-200 selection:text-gray-900">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
