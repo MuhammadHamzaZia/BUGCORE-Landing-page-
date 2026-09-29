@@ -8,6 +8,7 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { CoreFeatures } from './components/CoreFeatures';
 import { DeploySection } from './components/DeploySection';
+import { LiveCommitsSection } from './components/LiveCommitsSection';
 import { Footer } from './components/Footer';
 import { DocModal } from './components/DocModal';
 import { ApiModal } from './components/ApiModal';
@@ -37,6 +38,9 @@ export default function App() {
 
         {/* Core Features Section */}
         <CoreFeatures />
+
+        {/* Live Project Commits & Activity Feed */}
+        <LiveCommitsSection />
 
         {/* Deploy in 2 Minutes Section */}
         <DeploySection />
